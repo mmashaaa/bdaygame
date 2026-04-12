@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>С днём рождения! 🦊</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-user-select: none; user-select: none; }
+
+  :root {
+    --cream: #FFF8F0;
+    --peach: #FFCBA4;
+    --rose: #F4857A;
+    --brown: #7B4F35;
+    --text: #4A2E1A;
+    --soft: #FFE8D6;
+  }
+
+  html, body {
+    width: 100%; height: 100%;
+    background: var(--cream);
+    font-family: 'Nunito', sans-serif;
+    overflow: hidden;
+  }
+
+  /* ── SCREENS ── */
+  .screen {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 24px 20px;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.5s ease;
+  }
+  .screen.active { opacity: 1; pointer-events: all; }
+
+  /* ── PLACEHOLDER IMAGES ── */
+  .img-placeholder {
+    background: var(--soft);
+    border: 2.5px dashed var(--peach);
+    border-radius: 20px;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 8px;
+    color: var(--brown);
+    font-size: 13px;
+    font-weight: 600;
+    text-align: center;
+    padding: 12px;
+    line-height: 1.4;
+  }
+  .img-placeholder .ph-icon { font-size: 32px; }
+  .img-placeholder .ph-label { opacity: 0.7; font-size: 11px; font-weight: 400; margin-top: 2px; }
+
+  /* replace with: <img src="your-file.png" style="width:...px; height:...px; border-radius:20px; object-fit:cover"> */
+
+  /* ── SPEECH BUBBLE ── */
+  .bubble {
+    background: white;
+    border: 2.5px solid var(--peach);
+    border-radius: 20px;
+    padding: 14px 18px;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    text-align: center;
+    position: relative;
+    line-height: 1.5;
+    max-width: 320px;
+  }
+  .bubble::after {
+    content: '';
+    position: absolute;
+    bottom: -14px; left: 50%;
+    transform: translateX(-50%);
+    border: 7px solid transparent;
+    border-top-color: var(--peach);
+  }
+  .bubble::before {
+    content: '';
+    position: absolute;
+    bottom: -10px; left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: white;
+    z-index: 1;
+  }
+
+  /* ── BUTTON ── */
+  .btn {
+    background: var(--rose);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 14px 36px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
+    letter-spacing: 0.3px;
+    transition: transform 0.1s, background 0.15s;
+    box-shadow: 0 4px 0 #c46558;
+  }
+  .btn:active { transform: translateY(3px); box-shadow: 0 1px 0 #c46558; }
+  .btn:hover { background: #e8726a; }
+
+  /* ── SCREEN 1: BEDROOM ── */
+  #s1 { gap: 20px; }
+  #s1 .scene-label {
+    font-size: 13px; font-weight: 600; color: var(--brown);
+    opacity: 0.6; letter-spacing: 1px; text-transform: uppercase;
+  }
+
+  /* ── SCREEN 2: CLOSEUP ── */
+  #s2 { gap: 20px; }
+
+  /* ── SCREEN 3: DECORATING ── */
+  #s3 { padding: 0; justify-content: flex-start; }
+
+  #s3-header {
+    width: 100%; padding: 10px 20px;
+    display: flex; align-items: center; justify-content: flex-start;
+    flex-shrink: 0;
+  }
+  #s3-header .title { font-size: 15px; font-weight: 800; color: var(--text); }
+  #done-btn { padding: 10px 22px; font-size: 14px; transition: opacity 0.3s; }
+
+  #scene-container {
+    position: relative;
+    width: 100%;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    touch-action: none;
+  }
+
+  #scene-container img#bg-placeholder {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center center;
+    display: block;
+  }
+
+  /* decorations tray — вне scene-container */
+  #tray {
+    width: 100%;
+    background: rgba(255,248,240,0.97);
+    border-top: 2px solid var(--peach);
+    padding: 10px 12px;
+    display: flex; gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+  }
+
+  .deco-item {
+    width: 64px; height: 64px;
+    border-radius: 14px;
+    background: var(--soft);
+    border: 2px dashed var(--peach);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 3px;
+    cursor: grab;
+    font-size: 10px; font-weight: 700; color: var(--brown);
+    flex-shrink: 0;
+    transition: opacity 0.3s;
+  }
+  .deco-item .deco-ph { font-size: 11px; opacity: 0.55; }
+  .deco-item .deco-emoji { font-size: 26px; }
+
+  /* placed decoration */
+  .placed-deco {
+    position: absolute;
+    cursor: move;
+    touch-action: none;
+    width: 72px; height: 72px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .placed-deco .deco-emoji { font-size: 40px; }
+  .placed-deco.img-mode img { width: 72px; height: 72px; object-fit: contain; }
+
+  /* ghost while dragging */
+  .drag-ghost {
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%) scale(1.15);
+    font-size: 44px;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+  }
+
+  /* counter */
+  #counter {
+    font-size: 12px; font-weight: 700; color: var(--brown);
+    background: var(--soft); border-radius: 20px;
+    padding: 3px 10px;
+  }
+
+  /* ── PARTY OVERLAY ── */
+  #party-overlay {
+    display: none;
+    position: absolute; inset: 0;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    padding-bottom: 32px;
+    z-index: 10;
+    pointer-events: none;
+  }
+  #party-overlay.visible { display: flex; pointer-events: all; }
+
+  #party-gif {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: contain;
+    object-position: bottom center;
+  }
+  /* плейсхолдер под гифку */
+  #party-gif-ph {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 55%;
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 6px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px; font-weight: 600;
+    color: var(--brown);
+    background: rgba(255,232,214,0.6);
+    border-top: 2px dashed var(--peach);
+  }
+  #party-gif-ph .ph-icon { font-size: 36px; }
+  #party-gif-ph .ph-label { font-size: 11px; font-weight: 400; opacity: 0.7; }
+
+  #party-text {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    background: rgba(255,248,240,0.92);
+    border-radius: 20px;
+    padding: 14px 24px;
+    display: flex; flex-direction: column; gap: 10px;
+    align-items: center;
+  }
+  #party-text .party-title {
+    font-size: 22px; font-weight: 800; color: var(--rose); line-height: 1.2;
+  }
+  #party-text .party-sub {
+    font-size: 14px; color: var(--brown); font-weight: 600; opacity: 0.85;
+  }
+
+  /* ── SCREEN 4: PARTY ── */
+  #s4 { gap: 24px; }
+  #s4 .party-title {
+    font-size: 26px; font-weight: 800; color: var(--rose);
+    text-align: center; line-height: 1.3;
+  }
+  #s4 .party-sub {
+    font-size: 15px; color: var(--brown); text-align: center;
+    font-weight: 600; opacity: 0.8;
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════
+     SCREEN 0 — лисичка спит, интрига
+══════════════════════════════════════ -->
+<div class="screen active" id="s0">
+  <div class="scene-label"></div>
+
+  <img src="sleeping.png" style="width:320px;height:240px;border-radius:20px;object-fit:cover">
+
+  <div class="bubble">?</div>
+
+  <button class="btn" onclick="goTo('s1')">Дальше →</button>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     SCREEN 1 — лисичка просыпается
+══════════════════════════════════════ -->
+<div class="screen" id="s1">
+  <div class="scene-label"></div>
+
+  <img src="bedroom.png" style="width:320px;height:240px;border-radius:20px;object-fit:cover">
+
+  <div class="bubble">Ура, сегодня мой день рождения!</div>
+
+  <button class="btn" onclick="goTo('s2')">Дальше →</button>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     SCREEN 2 — крупный план
+══════════════════════════════════════ -->
+<div class="screen" id="s2">
+
+  <img src="fox-face.png" style="width:200px;height:200px;border-radius:50%;object-fit:cover">
+
+  <div class="bubble" style="margin-top:8px">
+    Скоро придут гости!<br>Надо все украсить!
+  </div>
+
+  <button class="btn" style="margin-top:8px" onclick="goTo('s3')">Украшать! →</button>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     SCREEN 3 — украшение домика
+══════════════════════════════════════ -->
+<div class="screen" id="s3">
+
+  <div id="s3-header">
+    <button class="btn" id="done-btn" onclick="showParty()">Готово! ✓</button>
+  </div>
+
+  <div id="scene-container">
+
+    <img src="room-bg.png" id="bg-placeholder">
+
+    <!-- placed decos appear here -->
+
+    <!-- PARTY OVERLAY — появляется поверх комнаты и украшений -->
+    <div id="party-overlay">
+      <img id="party-gif" src="party.gif">
+      <div id="party-text">
+        <div class="party-title">Ура! Гости пришли! 🎉</div>
+        <div class="party-sub">С днём рождения! 🎂🎈</div>
+        <button class="btn" onclick="restart()">Ещё раз! ↺</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- tray СНАРУЖИ scene-container -->
+  <div id="tray">
+    <div style="width:100%;text-align:center;font-size:11px;color:var(--brown);opacity:0.5;margin-bottom:2px">перетащи обратно сюда — уберётся</div>
+    <div class="deco-item" data-img="balloon-pink.png" ondragstart="return false">
+      <img src="balloon-pink.png" style="width:44px;height:44px;object-fit:contain">
+    </div>
+    <div class="deco-item" data-img="balloon-stripe.png" ondragstart="return false">
+      <img src="balloon-stripe.png" style="width:44px;height:44px;object-fit:contain">
+    </div>
+    <div class="deco-item" data-img="balloon-star.png" ondragstart="return false">
+      <img src="balloon-star.png" style="width:44px;height:44px;object-fit:contain">
+    </div>
+    <div class="deco-item" data-img="garland.png" data-wide="true" ondragstart="return false">
+      <img src="garland.png" style="width:44px;height:44px;object-fit:contain">
+    </div>
+    <div class="deco-item" data-img="star.png" ondragstart="return false">
+      <img src="star.png" style="width:44px;height:44px;object-fit:contain">
+    </div>
+  </div>
+
+</div>
+
+
+<!-- s4 убран — финал показывается оверлеем поверх комнаты с украшениями -->
+
+
+<script>
+// ── navigation ──
+function goTo(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function showParty() {
+  document.getElementById('tray').style.display = 'none';
+  document.getElementById('s3-header').style.display = 'none';
+  document.getElementById('party-overlay').classList.add('visible');
+  document.getElementById('party-overlay').style.display = 'flex';
+}
+
+function restart() {
+  document.getElementById('tray').style.display = 'flex';
+  document.getElementById('s3-header').style.display = 'flex';
+  document.getElementById('party-overlay').classList.remove('visible');
+  document.getElementById('party-overlay').style.display = 'none';
+  goTo('s0');
+  resetDecorations();
+}
+
+// ── drag & drop decorations ──
+let placedCount = 0;
+let ghost = null;
+let activeSource = null;
+let activeWide = false;
+let activePlaced = null;
+let activePlacedWide = false;
+let offsetX = 0, offsetY = 0;
+
+const container = document.getElementById('scene-container');
+const counter = document.getElementById('counter');
+const doneBtn = document.getElementById('done-btn');
+
+function updateCounter() {
+  counter.textContent = placedCount + ' украшений';
+}
+
+function createGhost(src, x, y, wide) {
+  ghost = document.createElement('img');
+  ghost.src = src;
+  ghost.className = 'drag-ghost';
+  ghost.style.width = wide ? '120px' : '64px';
+  ghost.style.height = '64px';
+  ghost.style.objectFit = 'contain';
+  ghost.style.left = x + 'px';
+  ghost.style.top = y + 'px';
+  document.body.appendChild(ghost);
+}
+
+function moveGhost(x, y) {
+  if (!ghost) return;
+  ghost.style.left = x + 'px';
+  ghost.style.top = y + 'px';
+}
+
+function removeGhost() {
+  if (ghost) { ghost.remove(); ghost = null; }
+}
+
+function isOverTray(y) {
+  const tray = document.getElementById('tray');
+  return y >= tray.getBoundingClientRect().top;
+}
+
+function dropOnScene(x, y, src, wide) {
+  const rect = container.getBoundingClientRect();
+  if (y >= rect.bottom) return;
+  if (y < rect.top) return;
+
+  const el = document.createElement('div');
+  el.className = 'placed-deco';
+
+  if (wide) {
+    el.style.left = '0px';
+    el.style.top = Math.max(0, Math.min(y - rect.top - 36, rect.height - 72)) + 'px';
+    el.style.width = '100%';
+    el.style.height = '72px';
+    el.innerHTML = '<img src="' + src + '" style="width:100%;height:72px;object-fit:fill">';
+  } else {
+    const relX = x - rect.left - 36;
+    const relY = y - rect.top - 36;
+    el.style.left = Math.max(0, Math.min(relX, rect.width - 72)) + 'px';
+    el.style.top = Math.max(0, Math.min(relY, rect.height - 72)) + 'px';
+    el.innerHTML = '<img src="' + src + '" style="width:72px;height:72px;object-fit:contain">';
+  }
+
+  container.appendChild(el);
+  placedCount++;
+  makePlacedDraggable(el, wide);
+}
+
+function makePlacedDraggable(el, wide) {
+  el.addEventListener('mousedown', e => {
+    e.stopPropagation();
+    activePlaced = el;
+    activePlacedWide = wide || false;
+    const r = el.getBoundingClientRect();
+    offsetX = e.clientX - r.left - 36;
+    offsetY = e.clientY - r.top - 36;
+  });
+  el.addEventListener('touchstart', e => {
+    e.stopPropagation(); e.preventDefault();
+    activePlaced = el;
+    activePlacedWide = wide || false;
+    const t = e.touches[0];
+    const r = el.getBoundingClientRect();
+    offsetX = t.clientX - r.left - 36;
+    offsetY = t.clientY - r.top - 36;
+  }, { passive: false });
+}
+
+function releasePlaced(x, y) {
+  if (!activePlaced) return;
+  if (isOverTray(y)) {
+    activePlaced.remove();
+    placedCount--;
+  }
+  activePlaced = null;
+  activePlacedWide = false;
+}
+
+// tray items
+document.querySelectorAll('.deco-item').forEach(item => {
+  const src = item.dataset.img;
+  const wide = item.dataset.wide === 'true';
+
+  item.addEventListener('mousedown', e => {
+    e.preventDefault();
+    activeSource = src;
+    activeWide = wide;
+    createGhost(src, e.clientX, e.clientY, wide);
+  });
+  item.addEventListener('touchstart', e => {
+    e.preventDefault();
+    activeSource = src;
+    activeWide = wide;
+    const t = e.touches[0];
+    createGhost(src, t.clientX, t.clientY, wide);
+  }, { passive: false });
+});
+
+// global move
+document.addEventListener('mousemove', e => {
+  if (activePlaced) {
+    const rect = container.getBoundingClientRect();
+    const maxY = rect.height - 72;
+    if (!activePlacedWide) {
+      activePlaced.style.left = Math.max(0, Math.min(e.clientX - rect.left - 36 - offsetX, rect.width - 72)) + 'px';
+    }
+    activePlaced.style.top = Math.max(0, Math.min(e.clientY - rect.top - 36 - offsetY, maxY)) + 'px';
+    return;
+  }
+  if (ghost) moveGhost(e.clientX, e.clientY);
+});
+document.addEventListener('touchmove', e => {
+  const t = e.touches[0];
+  if (activePlaced) {
+    e.preventDefault();
+    const rect = container.getBoundingClientRect();
+    const maxY = rect.height - 72;
+    if (!activePlacedWide) {
+      activePlaced.style.left = Math.max(0, Math.min(t.clientX - rect.left - 36 - offsetX, rect.width - 72)) + 'px';
+    }
+    activePlaced.style.top = Math.max(0, Math.min(t.clientY - rect.top - 36 - offsetY, maxY)) + 'px';
+    return;
+  }
+  if (ghost) { e.preventDefault(); moveGhost(t.clientX, t.clientY); }
+}, { passive: false });
+
+// global end
+document.addEventListener('mouseup', e => {
+  if (activePlaced) { releasePlaced(e.clientX, e.clientY); return; }
+  if (ghost && activeSource) {
+    dropOnScene(e.clientX, e.clientY, activeSource, activeWide);
+    removeGhost(); activeSource = null; activeWide = false;
+  }
+});
+document.addEventListener('touchend', e => {
+  const t = e.changedTouches[0];
+  if (activePlaced) { releasePlaced(t.clientX, t.clientY); return; }
+  if (ghost && activeSource) {
+    dropOnScene(t.clientX, t.clientY, activeSource, activeWide);
+    removeGhost(); activeSource = null; activeWide = false;
+  }
+});
+
+function resetDecorations() {
+  placedCount = 0;
+  updateCounter();
+  container.querySelectorAll('.placed-deco').forEach(el => el.remove());
+}
+
+updateCounter();
+</script>
+</body>
+</html>
