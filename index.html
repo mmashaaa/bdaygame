@@ -265,7 +265,7 @@
      SCREEN 0 — лисичка спит, интрига
 ══════════════════════════════════════ -->
 <div class="screen active" id="s0">
-  <div class="scene-label">раннее утро</div>
+  <div class="scene-label"></div>
 
   <img src="sleeping.png" style="width:320px;height:240px;border-radius:20px;object-fit:cover">
 
@@ -279,11 +279,11 @@
      SCREEN 1 — лисичка просыпается
 ══════════════════════════════════════ -->
 <div class="screen" id="s1">
-  <div class="scene-label">утро</div>
+  <div class="scene-label"></div>
 
   <img src="bedroom.png" style="width:320px;height:240px;border-radius:20px;object-fit:cover">
 
-  <div class="bubble">Мяу! Сегодня... мой день рождения! 🎂</div>
+  <div class="bubble">Ура, сегодня мой день рождения!</div>
 
   <button class="btn" onclick="goTo('s2')">Дальше →</button>
 </div>
@@ -297,7 +297,7 @@
   <img src="fox-face.png" style="width:200px;height:200px;border-radius:50%;object-fit:cover">
 
   <div class="bubble" style="margin-top:8px">
-    Скоро придут гости!<br>Надо украсить домик! 🎈
+    Скоро придут гости!<br>Надо все украсить!
   </div>
 
   <button class="btn" style="margin-top:8px" onclick="goTo('s3')">Украшать! →</button>
@@ -315,7 +315,7 @@
 
   <div id="scene-container">
 
-    <img src="room-bg.png" id="bg-placeholder" style="width:100%;height:100%;object-fit:cover;display:block">
+    <img src="room-bg.png" id="bg-placeholder" style="width:100%;height:100%;object-fit:contain;object-position:top center;display:block">
 
     <!-- placed decos appear here -->
 
