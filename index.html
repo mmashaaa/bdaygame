@@ -209,23 +209,20 @@
     position: absolute; inset: 0;
     flex-direction: column;
     align-items: stretch;
+    justify-content: space-between;
     z-index: 10;
     pointer-events: none;
   }
   #party-overlay.visible { display: flex; pointer-events: all; }
 
   .party-gif-wrapper {
-    flex: 1;
-    min-height: 0;
+    flex-shrink: 0;
     width: 100%;
-    overflow: hidden;
   }
 
   #party-gif {
     width: 100%;
-    height: 100%;
-    object-fit: contain;
-    object-position: center;
+    height: auto;
     display: block;
   }
 
@@ -320,7 +317,7 @@
     <!-- PARTY OVERLAY — появляется поверх комнаты и украшений -->
     <div id="party-overlay">
       <div class="party-gif-wrapper">
-        <img id="party-gif" src="party.gif">
+        <img id="party-gif" src="party.png">
       </div>
       <div id="party-text">
         <div class="party-title">Ура! Гости пришли! 🎉</div>
