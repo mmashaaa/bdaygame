@@ -363,8 +363,10 @@ function goTo(id) {
 }
 
 function showParty() {
-  document.getElementById('tray').style.display = 'none';
-  document.getElementById('s3-header').style.display = 'none';
+  // visibility:hidden вместо display:none — размер scene-container не меняется,
+  // украшения остаются на своих местах
+  document.getElementById('tray').style.visibility = 'hidden';
+  document.getElementById('s3-header').style.visibility = 'hidden';
   const wrapper = document.querySelector('.party-gif-wrapper');
   if (garlandTop) {
     wrapper.style.left = garlandTop.left + 'px';
@@ -379,8 +381,8 @@ function showParty() {
 }
 
 function restart() {
-  document.getElementById('tray').style.display = 'flex';
-  document.getElementById('s3-header').style.display = 'flex';
+  document.getElementById('tray').style.visibility = '';
+  document.getElementById('s3-header').style.visibility = '';
   document.getElementById('party-overlay').classList.remove('visible');
   document.getElementById('party-overlay').style.display = 'none';
   goTo('s0');
