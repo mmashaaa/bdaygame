@@ -106,6 +106,9 @@
   .btn:active { transform: translateY(3px); box-shadow: 0 1px 0 #c46558; }
   .btn:hover { background: #e8726a; }
 
+  /* ── SCREEN 0: SLEEPING ── */
+  #s0 { gap: 20px; }
+
   /* ── SCREEN 1: BEDROOM ── */
   #s1 { gap: 20px; }
   #s1 .scene-label {
@@ -205,43 +208,33 @@
     display: none;
     position: absolute; inset: 0;
     flex-direction: column;
-    align-items: center;
-    justify-content: flex-end;
-    padding-bottom: 32px;
+    align-items: stretch;
     z-index: 10;
     pointer-events: none;
   }
   #party-overlay.visible { display: flex; pointer-events: all; }
 
+  .party-gif-wrapper {
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    overflow: hidden;
+  }
+
   #party-gif {
-    position: absolute; inset: 0;
-    width: 100%; height: 100%;
+    width: 100%;
+    height: 100%;
     object-fit: contain;
-    object-position: bottom center;
+    object-position: center;
+    display: block;
   }
-  /* плейсхолдер под гифку */
-  #party-gif-ph {
-    position: absolute;
-    bottom: 0; left: 0; right: 0;
-    height: 55%;
-    display: flex; align-items: center; justify-content: center;
-    flex-direction: column; gap: 6px;
-    font-family: 'Nunito', sans-serif;
-    font-size: 13px; font-weight: 600;
-    color: var(--brown);
-    background: rgba(255,232,214,0.6);
-    border-top: 2px dashed var(--peach);
-  }
-  #party-gif-ph .ph-icon { font-size: 36px; }
-  #party-gif-ph .ph-label { font-size: 11px; font-weight: 400; opacity: 0.7; }
 
   #party-text {
-    position: relative;
-    z-index: 2;
+    flex-shrink: 0;
     text-align: center;
-    background: rgba(255,248,240,0.92);
-    border-radius: 20px;
-    padding: 14px 24px;
+    background: rgba(255,248,240,0.95);
+    border-top: 2px solid var(--peach);
+    padding: 14px 24px 20px;
     display: flex; flex-direction: column; gap: 10px;
     align-items: center;
   }
@@ -272,7 +265,7 @@
 <div class="screen active" id="s0">
   <div class="scene-label"></div>
 
-  <img src="sleeping.png" style="width:320px;height:240px;border-radius:20px;object-fit:cover">
+  <img src="sleeping.png" style="width:min(320px,calc(100vw - 48px));max-height:42vh;border-radius:20px;object-fit:cover;display:block">
 
   <div class="bubble">?</div>
 
@@ -286,7 +279,7 @@
 <div class="screen" id="s1">
   <div class="scene-label"></div>
 
-  <img src="bedroom.png" style="width:320px;height:240px;border-radius:20px;object-fit:cover">
+  <img src="bedroom.png" style="width:min(320px,calc(100vw - 48px));max-height:42vh;border-radius:20px;object-fit:cover;display:block">
 
   <div class="bubble">Ура, сегодня мой день рождения!</div>
 
@@ -326,7 +319,9 @@
 
     <!-- PARTY OVERLAY — появляется поверх комнаты и украшений -->
     <div id="party-overlay">
-      <img id="party-gif" src="party.gif">
+      <div class="party-gif-wrapper">
+        <img id="party-gif" src="party.gif">
+      </div>
       <div id="party-text">
         <div class="party-title">Ура! Гости пришли! 🎉</div>
         <div class="party-sub">С днём рождения! 🎂🎈</div>
@@ -385,6 +380,25 @@ function restart() {
   resetDecorations();
 }
 
+// ── helpers ──
+function getImgBounds() {
+  const bg = document.getElementById('bg-placeholder');
+  const cW = container.clientWidth;
+  const cH = container.clientHeight;
+  const nW = bg.naturalWidth;
+  const nH = bg.naturalHeight;
+  if (!nW || !nH) return { x: 0, y: 0, width: cW, height: cH };
+  const imgRatio = nW / nH;
+  const conRatio = cW / cH;
+  let iW, iH, iX, iY;
+  if (imgRatio > conRatio) {
+    iW = cW; iH = cW / imgRatio; iX = 0; iY = (cH - iH) / 2;
+  } else {
+    iH = cH; iW = cH * imgRatio; iX = (cW - iW) / 2; iY = 0;
+  }
+  return { x: iX, y: iY, width: iW, height: iH };
+}
+
 // ── drag & drop decorations ──
 let placedCount = 0;
 let ghost = null;
@@ -438,9 +452,10 @@ function dropOnScene(x, y, src, wide) {
   el.className = 'placed-deco';
 
   if (wide) {
-    el.style.left = '0px';
-    el.style.top = Math.max(0, Math.min(y - rect.top - 36, rect.height - 72)) + 'px';
-    el.style.width = '100%';
+    const ib = getImgBounds();
+    el.style.left = ib.x + 'px';
+    el.style.top = Math.max(ib.y, Math.min(y - rect.top - 36, ib.y + ib.height - 72)) + 'px';
+    el.style.width = ib.width + 'px';
     el.style.height = '72px';
     el.innerHTML = '<img src="' + src + '" style="width:100%;height:72px;object-fit:fill">';
   } else {
@@ -510,11 +525,13 @@ document.querySelectorAll('.deco-item').forEach(item => {
 document.addEventListener('mousemove', e => {
   if (activePlaced) {
     const rect = container.getBoundingClientRect();
-    const maxY = rect.height - 72;
-    if (!activePlacedWide) {
+    if (activePlacedWide) {
+      const ib = getImgBounds();
+      activePlaced.style.top = Math.max(ib.y, Math.min(e.clientY - rect.top - 36 - offsetY, ib.y + ib.height - 72)) + 'px';
+    } else {
       activePlaced.style.left = Math.max(0, Math.min(e.clientX - rect.left - 36 - offsetX, rect.width - 72)) + 'px';
+      activePlaced.style.top = Math.max(0, Math.min(e.clientY - rect.top - 36 - offsetY, rect.height - 72)) + 'px';
     }
-    activePlaced.style.top = Math.max(0, Math.min(e.clientY - rect.top - 36 - offsetY, maxY)) + 'px';
     return;
   }
   if (ghost) moveGhost(e.clientX, e.clientY);
@@ -524,11 +541,13 @@ document.addEventListener('touchmove', e => {
   if (activePlaced) {
     e.preventDefault();
     const rect = container.getBoundingClientRect();
-    const maxY = rect.height - 72;
-    if (!activePlacedWide) {
+    if (activePlacedWide) {
+      const ib = getImgBounds();
+      activePlaced.style.top = Math.max(ib.y, Math.min(t.clientY - rect.top - 36 - offsetY, ib.y + ib.height - 72)) + 'px';
+    } else {
       activePlaced.style.left = Math.max(0, Math.min(t.clientX - rect.left - 36 - offsetX, rect.width - 72)) + 'px';
+      activePlaced.style.top = Math.max(0, Math.min(t.clientY - rect.top - 36 - offsetY, rect.height - 72)) + 'px';
     }
-    activePlaced.style.top = Math.max(0, Math.min(t.clientY - rect.top - 36 - offsetY, maxY)) + 'px';
     return;
   }
   if (ghost) { e.preventDefault(); moveGhost(t.clientX, t.clientY); }
