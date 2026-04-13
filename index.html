@@ -209,20 +209,21 @@
     position: absolute; inset: 0;
     flex-direction: column;
     align-items: stretch;
-    justify-content: space-between;
+    justify-content: flex-end;
     z-index: 10;
     pointer-events: none;
   }
   #party-overlay.visible { display: flex; pointer-events: all; }
 
   .party-gif-wrapper {
-    flex-shrink: 0;
-    width: 100%;
+    position: absolute;
+    /* left/top/width set by JS to match placed garland */
   }
 
   #party-gif {
     width: 100%;
-    height: auto;
+    height: 72px;
+    object-fit: fill;
     display: block;
   }
 
@@ -364,6 +365,15 @@ function goTo(id) {
 function showParty() {
   document.getElementById('tray').style.display = 'none';
   document.getElementById('s3-header').style.display = 'none';
+  const wrapper = document.querySelector('.party-gif-wrapper');
+  if (garlandTop) {
+    wrapper.style.left = garlandTop.left + 'px';
+    wrapper.style.top = garlandTop.top + 'px';
+    wrapper.style.width = garlandTop.width + 'px';
+    wrapper.style.display = 'block';
+  } else {
+    wrapper.style.display = 'none';
+  }
   document.getElementById('party-overlay').classList.add('visible');
   document.getElementById('party-overlay').style.display = 'flex';
 }
@@ -397,6 +407,7 @@ function getImgBounds() {
 }
 
 // ── drag & drop decorations ──
+let garlandTop = null; // tracks where garland was placed
 let placedCount = 0;
 let ghost = null;
 let activeSource = null;
@@ -450,8 +461,10 @@ function dropOnScene(x, y, src, wide) {
 
   if (wide) {
     const ib = getImgBounds();
+    const top = Math.max(ib.y, Math.min(y - rect.top - 36, ib.y + ib.height - 72));
+    garlandTop = { top, left: ib.x, width: ib.width };
     el.style.left = ib.x + 'px';
-    el.style.top = Math.max(ib.y, Math.min(y - rect.top - 36, ib.y + ib.height - 72)) + 'px';
+    el.style.top = top + 'px';
     el.style.width = ib.width + 'px';
     el.style.height = '72px';
     el.innerHTML = '<img src="' + src + '" style="width:100%;height:72px;object-fit:fill">';
@@ -491,8 +504,12 @@ function makePlacedDraggable(el, wide) {
 function releasePlaced(x, y) {
   if (!activePlaced) return;
   if (isOverTray(y)) {
+    if (activePlacedWide) garlandTop = null;
     activePlaced.remove();
     placedCount--;
+  } else if (activePlacedWide) {
+    const ib = getImgBounds();
+    garlandTop = { top: parseInt(activePlaced.style.top), left: ib.x, width: ib.width };
   }
   activePlaced = null;
   activePlacedWide = false;
@@ -569,6 +586,7 @@ document.addEventListener('touchend', e => {
 
 function resetDecorations() {
   placedCount = 0;
+  garlandTop = null;
   updateCounter();
   container.querySelectorAll('.placed-deco').forEach(el => el.remove());
 }
