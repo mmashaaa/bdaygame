@@ -350,7 +350,6 @@ function goTo(id) {
 function showParty() {
   const bg = document.getElementById('bg-placeholder');
   bg.src = 'party.png';
-  bg.style.objectFit = 'cover';
   document.getElementById('tray').style.visibility = 'hidden';
   document.getElementById('s3-header').style.visibility = 'hidden';
   document.getElementById('party-overlay').classList.add('visible');
@@ -360,7 +359,6 @@ function showParty() {
 function restart() {
   const bg = document.getElementById('bg-placeholder');
   bg.src = 'room-bg.png';
-  bg.style.objectFit = '';
   document.getElementById('tray').style.visibility = '';
   document.getElementById('s3-header').style.visibility = '';
   document.getElementById('party-overlay').classList.remove('visible');
