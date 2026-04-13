@@ -107,10 +107,10 @@
   .btn:hover { background: #e8726a; }
 
   /* ── SCREEN 0: SLEEPING ── */
-  #s0 { gap: 20px; }
+  #s0 { gap: 20px; padding-left: 0; padding-right: 0; }
 
   /* ── SCREEN 1: BEDROOM ── */
-  #s1 { gap: 20px; }
+  #s1 { gap: 20px; padding-left: 0; padding-right: 0; }
   #s1 .scene-label {
     font-size: 13px; font-weight: 600; color: var(--brown);
     opacity: 0.6; letter-spacing: 1px; text-transform: uppercase;
@@ -251,7 +251,7 @@
 <div class="screen active" id="s0">
   <div class="scene-label"></div>
 
-  <img src="sleeping.png" style="width:min(320px,calc(100vw - 48px));max-height:42vh;border-radius:20px;object-fit:cover;display:block">
+  <img src="sleeping.png" style="width:100%;max-height:50vh;object-fit:cover;display:block">
 
   <div class="bubble">?</div>
 
@@ -265,7 +265,7 @@
 <div class="screen" id="s1">
   <div class="scene-label"></div>
 
-  <img src="bedroom.png" style="width:min(320px,calc(100vw - 48px));max-height:42vh;border-radius:20px;object-fit:cover;display:block">
+  <img src="bedroom.png" style="width:100%;max-height:50vh;object-fit:cover;display:block">
 
   <div class="bubble">Ура, сегодня мой день рождения!</div>
 
@@ -348,8 +348,9 @@ function goTo(id) {
 }
 
 function showParty() {
-  // party.png становится фоном — заменяем room-bg, украшения остаются поверх
-  document.getElementById('bg-placeholder').src = 'party.png';
+  const bg = document.getElementById('bg-placeholder');
+  bg.src = 'party.png';
+  bg.style.objectFit = 'cover';
   document.getElementById('tray').style.visibility = 'hidden';
   document.getElementById('s3-header').style.visibility = 'hidden';
   document.getElementById('party-overlay').classList.add('visible');
@@ -357,7 +358,9 @@ function showParty() {
 }
 
 function restart() {
-  document.getElementById('bg-placeholder').src = 'room-bg.png';
+  const bg = document.getElementById('bg-placeholder');
+  bg.src = 'room-bg.png';
+  bg.style.objectFit = '';
   document.getElementById('tray').style.visibility = '';
   document.getElementById('s3-header').style.visibility = '';
   document.getElementById('party-overlay').classList.remove('visible');
