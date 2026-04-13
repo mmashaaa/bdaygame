@@ -207,23 +207,25 @@
   #party-overlay {
     display: none;
     position: absolute; inset: 0;
-    flex-direction: column;
-    align-items: stretch;
-    justify-content: flex-end;
     z-index: 10;
     pointer-events: none;
   }
-  #party-overlay.visible { display: flex; pointer-events: all; }
+  #party-overlay.visible { display: block; pointer-events: all; }
 
-#party-text {
-    flex-shrink: 0;
+  /* party-text фиксирован внизу экрана, не перекрывает картинку */
+  #party-text {
+    display: none;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    z-index: 200;
     text-align: center;
-    background: rgba(255,248,240,0.95);
+    background: rgba(255,248,240,0.97);
     border-top: 2px solid var(--peach);
-    padding: 14px 24px 20px;
-    display: flex; flex-direction: column; gap: 10px;
+    padding: 14px 24px 24px;
+    flex-direction: column; gap: 10px;
     align-items: center;
   }
+  #party-text.visible { display: flex; }
   #party-text .party-title {
     font-size: 22px; font-weight: 800; color: var(--rose); line-height: 1.2;
   }
@@ -303,14 +305,8 @@
 
     <!-- placed decos appear here -->
 
-    <!-- PARTY OVERLAY — появляется поверх комнаты и украшений -->
-    <div id="party-overlay">
-      <div id="party-text">
-        <div class="party-title">Ура! Гости пришли! 🎉</div>
-        <div class="party-sub">С днём рождения! 🎂🎈</div>
-        <button class="btn" onclick="restart()">Ещё раз! ↺</button>
-      </div>
-    </div>
+    <!-- PARTY OVERLAY — блокирует касания на сцене -->
+    <div id="party-overlay"></div>
 
   </div>
 
@@ -348,21 +344,19 @@ function goTo(id) {
 }
 
 function showParty() {
-  const bg = document.getElementById('bg-placeholder');
-  bg.src = 'party.png';
+  document.getElementById('bg-placeholder').src = 'party.png';
   document.getElementById('tray').style.visibility = 'hidden';
   document.getElementById('s3-header').style.visibility = 'hidden';
   document.getElementById('party-overlay').classList.add('visible');
-  document.getElementById('party-overlay').style.display = 'flex';
+  document.getElementById('party-text').classList.add('visible');
 }
 
 function restart() {
-  const bg = document.getElementById('bg-placeholder');
-  bg.src = 'room-bg.png';
+  document.getElementById('bg-placeholder').src = 'room-bg.png';
   document.getElementById('tray').style.visibility = '';
   document.getElementById('s3-header').style.visibility = '';
   document.getElementById('party-overlay').classList.remove('visible');
-  document.getElementById('party-overlay').style.display = 'none';
+  document.getElementById('party-text').classList.remove('visible');
   goTo('s0');
   resetDecorations();
 }
@@ -566,5 +560,13 @@ function resetDecorations() {
 
 updateCounter();
 </script>
+
+<!-- party-text вне scene-container, fixed внизу экрана -->
+<div id="party-text">
+  <div class="party-title">Ура! Гости пришли! 🎉</div>
+  <div class="party-sub">С днём рождения! 🎂🎈</div>
+  <button class="btn" onclick="restart()">Ещё раз! ↺</button>
+</div>
+
 </body>
 </html>
